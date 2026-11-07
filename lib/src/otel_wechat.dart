@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_wechat_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_wechat';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class WechatResult {
+  /// Creates a result.
   const WechatResult({
     this.appId,
     this.openId,
@@ -80,8 +81,13 @@ class WechatResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class WechatCallResult<T> {
+  /// Creates a call result.
   const WechatCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final WechatResult? result;
 }
@@ -108,7 +114,7 @@ Future<T> tracedWechat<T>({
   final span = _tracer().startSpan(
     'wechat $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
@@ -116,70 +122,70 @@ Future<T> tracedWechat<T>({
       final res = r.result!;
       final extras = <Attribute<Object>>[];
       if (res.appId != null) {
-        extras.add(OTel.attributeString('wechat.app.id', res.appId!));
+        extras.add(OTelAPI.attributeString('wechat.app.id', res.appId!));
       }
       if (res.openId != null) {
-        extras.add(OTel.attributeString('wechat.open_id', res.openId!));
+        extras.add(OTelAPI.attributeString('wechat.open_id', res.openId!));
       }
       if (res.unionId != null) {
-        extras.add(OTel.attributeString('wechat.union_id', res.unionId!));
+        extras.add(OTelAPI.attributeString('wechat.union_id', res.unionId!));
       }
       if (res.platform != null) {
-        extras.add(OTel.attributeString('wechat.platform', res.platform!));
+        extras.add(OTelAPI.attributeString('wechat.platform', res.platform!));
       }
       if (res.scope != null) {
-        extras.add(OTel.attributeString('wechat.scope', res.scope!));
+        extras.add(OTelAPI.attributeString('wechat.scope', res.scope!));
       }
       if (res.accessTokenLength != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'wechat.access_token.length',
           res.accessTokenLength!,
         ));
       }
       if (res.refreshTokenLength != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'wechat.refresh_token.length',
           res.refreshTokenLength!,
         ));
       }
       if (res.expiresInSec != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'wechat.expires_in_sec',
           res.expiresInSec!,
         ));
       }
       if (res.shareScene != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'wechat.share.scene',
           res.shareScene!,
         ));
       }
       if (res.shareMessageType != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'wechat.share.message_type',
           res.shareMessageType!,
         ));
       }
       if (res.payPartnerId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'wechat.pay.partner_id',
           res.payPartnerId!,
         ));
       }
       if (res.payPrepayId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'wechat.pay.prepay_id',
           res.payPrepayId!,
         ));
       }
       if (res.payAmountCents != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'wechat.pay.amount_cents',
           res.payAmountCents!,
         ));
       }
       if (res.payResultCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'wechat.pay.result_code',
           res.payResultCode!,
         ));
@@ -188,25 +194,25 @@ Future<T> tracedWechat<T>({
         }
       }
       if (res.miniProgramId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'wechat.miniprogram.id',
           res.miniProgramId!,
         ));
       }
       if (res.miniProgramPath != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'wechat.miniprogram.path',
           res.miniProgramPath!,
         ));
       }
       if (res.miniProgramType != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'wechat.miniprogram.type',
           res.miniProgramType!,
         ));
       }
       if (res.errorCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'wechat.error.code',
           res.errorCode!,
         ));
@@ -218,7 +224,7 @@ Future<T> tracedWechat<T>({
         }
       }
       if (res.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           res.statusCode!,
         ));
@@ -226,13 +232,13 @@ Future<T> tracedWechat<T>({
           span.setStatus(SpanStatusCode.Error, 'WeChat HTTP ${res.statusCode}');
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
